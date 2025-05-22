@@ -2,19 +2,18 @@ import datetime
 import logging
 
 import jwt
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, Request, status
 
-from src.services.user_services import UserService
-from .. import schemas
-from ...shared import jwt_schemas
 from src.core.config import load_config
+from src.services.user_services import UserService
+
+from ...shared import jwt_schemas
+from .. import schemas
 
 config = load_config()
 
 
-async def validate_access_token_payload(
-        payload: dict
-) -> None:
+async def validate_access_token_payload(payload: dict) -> None:
     """
     payload.get unnecessary, because jwt.decode guarantee that payload will be filled
     function validating access token payload
@@ -29,14 +28,14 @@ async def validate_access_token_payload(
     # validate token_type
     if payload[config.jwt.token_type_field] != jwt_schemas.TokenType.access_token.value:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid token type"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token type"
         )
     # check expired date
-    if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(payload["exp"], datetime.UTC):
+    if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(
+        payload["exp"], datetime.UTC
+    ):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
     # check free requests for un-auth user
     if payload["role"] == "guest":
@@ -44,12 +43,12 @@ async def validate_access_token_payload(
         if user_reqs >= 20:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your free requests are over, you need to register a full account"
+                detail="Your free requests are over, you need to register a full account",
             )
 
 
 def _get_refresh_token_from_cookies(
-        request: Request,
+    request: Request,
 ) -> str:
     """
     function extract token from user cookies and validate it
@@ -63,13 +62,13 @@ def _get_refresh_token_from_cookies(
     if not (token := cookie.get(jwt_schemas.TokenType.refresh_token.value)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token not found, re-login please!"
+            detail="Token not found, re-login please!",
         )
     return token
 
 
 def get_user_id_from_refresh_token(
-        refresh_token: str = Depends(_get_refresh_token_from_cookies),
+    refresh_token: str = Depends(_get_refresh_token_from_cookies),
 ) -> int:
     """
     extract user id from refresh jwt token
@@ -80,25 +79,24 @@ def get_user_id_from_refresh_token(
     :raise: fastapi HTTPException with code 401(unauthorized) if token expired
     """
     try:
-        payload: dict = jwt.decode(refresh_token, config.jwt.public_key_path,
-                                   algorithms=[config.jwt.algorithm])
-    except jwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token"
+        payload: dict = jwt.decode(
+            refresh_token, config.jwt.public_key_path, algorithms=[config.jwt.algorithm]
         )
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        ) from e
     # check expired date
-    if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(payload["exp"], datetime.UTC):
+    if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(
+        payload["exp"], datetime.UTC
+    ):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
-    return int(payload['sub'])
+    return int(payload["sub"])
 
 
-def _get_access_token_from_cookie(
-        request: Request
-) -> str:
+def _get_access_token_from_cookie(request: Request) -> str:
     """
     extract access token from user cookies
     :param request: base fastapi request
@@ -108,26 +106,24 @@ def _get_access_token_from_cookie(
     cookie = request.cookies
     if not (token := cookie.get(jwt_schemas.TokenType.access_token.value)):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token not found"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token not found"
         )
     return token
 
 
 def _get_access_token_from_headers(
-        request: Request,
+    request: Request,
 ) -> str:
     headers = request.headers
     if headers.get("Authorization"):
-        return headers.get("Authorization").split(' ')[-1]
+        return headers.get("Authorization").split(" ")[-1]
     raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token required"
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Token required"
     )
 
 
 async def get_user_from_token(
-        token: str = Depends(_get_access_token_from_headers),
+    token: str = Depends(_get_access_token_from_headers),
 ) -> schemas.User:
     """
     extract access jwt token payload and return user schema
@@ -136,13 +132,15 @@ async def get_user_from_token(
     :raise: fastapi HTTPException with code 401(unauthorized) if token sign is wrong
     """
     try:
-        payload: dict = jwt.decode(token, config.jwt.public_key_path, algorithms=[config.jwt.algorithm])
-    except jwt.InvalidTokenError:
+        payload: dict = jwt.decode(
+            token, config.jwt.public_key_path, algorithms=[config.jwt.algorithm]
+        )
+    except jwt.InvalidTokenError as e:
         logging.exception("invalid token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
-        )
+        ) from e
     await validate_access_token_payload(payload)
     return schemas.User(
         id=payload["sub"],

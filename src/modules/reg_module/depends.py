@@ -3,10 +3,7 @@ from fastapi import HTTPException
 from . import schemas
 
 
-def validate_code(
-        code: int,
-        email: str
-) -> schemas.UserAuthInfo:
+def validate_code(code: int, email: str) -> schemas.UserAuthInfo:
     """
     validate full user information
     :param code: 6-digit code
@@ -19,8 +16,8 @@ def validate_code(
             email=email,
             code=code,
         )
-    except ValueError:
+    except ValueError as e:
         raise HTTPException(
             status_code=422,
-            detail=f"Invalid format of code or phone number",
-        )
+            detail="Invalid format of code or phone number",
+        ) from e

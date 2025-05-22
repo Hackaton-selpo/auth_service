@@ -1,18 +1,18 @@
 import datetime
 
-from src.database.models import User
-from .. import schemas
-from ...shared import jwt_schemas
-from src.core.config import load_config
-
 import jwt
+
+from src.core.config import load_config
+from src.database.models import User
+
+from ...shared import jwt_schemas
 
 config = load_config()
 
 
 def create_access_token(
-        user: User,
-        role: str,
+    user: User,
+    role: str,
 ) -> str:
     """
     function creates access token using user payload
@@ -25,9 +25,7 @@ def create_access_token(
         "sub": str(user.id),
         "email": user.email,
         "role": role,
-        "exp": now + datetime.timedelta(
-            minutes=config.jwt.access_token_expire_minutes
-        ),
+        "exp": now + datetime.timedelta(minutes=config.jwt.access_token_expire_minutes),
         "iat": now,
         config.jwt.token_type_field: jwt_schemas.TokenType.access_token.value,
     }
@@ -38,9 +36,7 @@ def create_access_token(
     )
 
 
-def create_refresh_token(
-        user_id: int
-) -> str:
+def create_refresh_token(user_id: int) -> str:
     """
     function update access token using user id
     :param user_id: uses for jwt sub
@@ -50,9 +46,7 @@ def create_refresh_token(
     jwt_payload = {
         "sub": str(user_id),
         config.jwt.token_type_field: jwt_schemas.TokenType.refresh_token.value,
-        "exp": now + datetime.timedelta(
-            days=config.jwt.refresh_token_expire_days
-        ),
+        "exp": now + datetime.timedelta(days=config.jwt.refresh_token_expire_days),
     }
     return jwt.encode(
         payload=jwt_payload,

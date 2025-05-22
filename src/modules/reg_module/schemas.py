@@ -1,5 +1,4 @@
-from pydantic import BaseModel, field_validator, EmailStr
-import re
+from pydantic import BaseModel, EmailStr
 
 
 class SuccessMessageSend(BaseModel):
@@ -14,6 +13,7 @@ class User(BaseModel):
 class UserAuthInfo(BaseModel):
     code: int
     email: EmailStr
+
 
 class AccessTokenSchema(BaseModel):
     access_token: str

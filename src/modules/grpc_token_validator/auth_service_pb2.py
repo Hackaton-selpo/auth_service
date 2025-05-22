@@ -4,41 +4,38 @@
 # source: auth_service.proto
 # Protobuf Python Version: 5.29.0
 """Generated protocol buffer code."""
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    0,
-    '',
-    'auth_service.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 0, "", "auth_service.proto"
 )
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-
-
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x61uth_service.proto\x12\x04\x61uth\"\x1d\n\x0cTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x8d\x01\n\rTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12/\n\x06\x63laims\x18\x02 \x03(\x0b\x32\x1f.auth.TokenResponse.ClaimsEntry\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x1a-\n\x0b\x43laimsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32\x44\n\x0b\x41uthService\x12\x35\n\nCheckToken\x12\x12.auth.TokenRequest\x1a\x13.auth.TokenResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x12\x61uth_service.proto\x12\x04\x61uth"\x1d\n\x0cTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t"\x8d\x01\n\rTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12/\n\x06\x63laims\x18\x02 \x03(\x0b\x32\x1f.auth.TokenResponse.ClaimsEntry\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x1a-\n\x0b\x43laimsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32\x44\n\x0b\x41uthService\x12\x35\n\nCheckToken\x12\x12.auth.TokenRequest\x1a\x13.auth.TokenResponseb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_service_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "auth_service_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_TOKENRESPONSE_CLAIMSENTRY']._loaded_options = None
-  _globals['_TOKENRESPONSE_CLAIMSENTRY']._serialized_options = b'8\001'
-  _globals['_TOKENREQUEST']._serialized_start=28
-  _globals['_TOKENREQUEST']._serialized_end=57
-  _globals['_TOKENRESPONSE']._serialized_start=60
-  _globals['_TOKENRESPONSE']._serialized_end=201
-  _globals['_TOKENRESPONSE_CLAIMSENTRY']._serialized_start=156
-  _globals['_TOKENRESPONSE_CLAIMSENTRY']._serialized_end=201
-  _globals['_AUTHSERVICE']._serialized_start=203
-  _globals['_AUTHSERVICE']._serialized_end=271
+    DESCRIPTOR._loaded_options = None
+    _globals["_TOKENRESPONSE_CLAIMSENTRY"]._loaded_options = None
+    _globals["_TOKENRESPONSE_CLAIMSENTRY"]._serialized_options = b"8\001"
+    _globals["_TOKENREQUEST"]._serialized_start = 28
+    _globals["_TOKENREQUEST"]._serialized_end = 57
+    _globals["_TOKENRESPONSE"]._serialized_start = 60
+    _globals["_TOKENRESPONSE"]._serialized_end = 201
+    _globals["_TOKENRESPONSE_CLAIMSENTRY"]._serialized_start = 156
+    _globals["_TOKENRESPONSE_CLAIMSENTRY"]._serialized_end = 201
+    _globals["_AUTHSERVICE"]._serialized_start = 203
+    _globals["_AUTHSERVICE"]._serialized_end = 271
 # @@protoc_insertion_point(module_scope)

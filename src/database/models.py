@@ -24,4 +24,6 @@ class User(Base):
     # Связь к роли
     role = relationship("Role", back_populates="users")
 
-    requests_count: Mapped[int] = mapped_column(default=0, nullable=False, server_default="0")
+    requests_count: Mapped[int] = mapped_column(
+        default=0, nullable=False, server_default="0"
+    )

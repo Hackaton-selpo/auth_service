@@ -1,33 +1,29 @@
 import hmac
 import logging
-import random
 from typing import Annotated
 
-from fastapi import Depends, status, HTTPException, Response, APIRouter, Form
+from fastapi import APIRouter, Depends, Form, HTTPException, Response, status
 from redis.asyncio import Redis
 
+from src.core.redis_initializer import get_redis
+
+from ...core.config import load_config
+from ...services.user_services import UserService
+from ..shared import jwt_schemas
+from ..shared.jwt_schemas import TokenType
 from . import schemas
 from .depends import validate_code
-from src.core.redis_initializer import get_redis
-from ..shared import jwt_schemas
 from .jwt_module.creator import create_access_token, create_refresh_token
 from .jwt_module.depends import get_user_from_token, get_user_id_from_refresh_token
 from .utils import send_verification_code
-from ..shared.jwt_schemas import TokenType
-from ...core.config import load_config
-from ...services.user_services import UserService
 
-router: APIRouter = APIRouter(
-    prefix="/auth",
-    tags=["auth"]
-)
+router: APIRouter = APIRouter(prefix="/auth", tags=["auth"])
 config = load_config()
 
 
-@router.post('/auth')
+@router.post("/auth")
 async def auth_user(
-        email: Annotated[str, Form()],
-        redis_client: Redis = Depends(get_redis)
+    email: Annotated[str, Form()], redis_client: Redis = Depends(get_redis)
 ) -> schemas.SuccessMessageSend:
     """
     first authorization router, user enter phone number and will receive 6-digits code
@@ -41,16 +37,16 @@ async def auth_user(
         return schemas.SuccessMessageSend(
             message="Verification code sent successfully",
         )
-    except Exception:
+    except Exception as e:
         logging.exception("Exception")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.get("/verify_code")
 async def verify_code(
-        response: Response,
-        user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
-        redis_client: Redis = Depends(get_redis)
+    response: Response,
+    user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
+    redis_client: Redis = Depends(get_redis),
 ):
     """
     second authorization handler, user has received the code, and will enter it to form with code
@@ -63,13 +59,10 @@ async def verify_code(
     :raise HTTPException 403 (when code is wrong)
     """
     # get code from redis using phone number
-    backend_code_from_user = await redis_client.get(
-        user_auth_info.email
-    )
+    backend_code_from_user = await redis_client.get(user_auth_info.email)
     if backend_code_from_user is None:
         raise HTTPException(
-            status_code=status.HTTP_410_GONE,
-            detail="Code lifetime is expired"
+            status_code=status.HTTP_410_GONE, detail="Code lifetime is expired"
         )
     # using to avoid time attack
     if hmac.compare_digest(backend_code_from_user, str(user_auth_info.code)):
@@ -92,32 +85,21 @@ async def verify_code(
         )
         return {TokenType.access_token: access_token}
 
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail='Wrong code'
-    )
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong code")
 
 
 @router.get("/verify_guest")
 async def verify_guest() -> schemas.AccessTokenSchema:
-    user = await UserService.create_user(
-        email=None,
-        role_id=2
-    )
-    token = create_access_token(
-        user=user,
-        role="guest"
-    )
+    user = await UserService.create_user(email=None, role_id=2)
+    token = create_access_token(user=user, role="guest")
 
-    return {
-        "access_token": token
-    }
+    return {"access_token": token}
 
 
 @router.get("/refresh_token")
 async def get_new_access_token(
-        response: Response,
-        user_id: int = Depends(get_user_id_from_refresh_token),
+    response: Response,
+    user_id: int = Depends(get_user_id_from_refresh_token),
 ):
     """
     using to update access token
@@ -135,10 +117,7 @@ async def get_new_access_token(
 
 
 @router.get("/logout")
-async def logout(
-        response: Response,
-        _=Depends(get_user_from_token)
-):
+async def logout(response: Response, _=Depends(get_user_from_token)):
     """
     delete user cookies
     :param response:
@@ -152,9 +131,7 @@ async def logout(
 
 
 @router.get("/protected")
-async def start_page(
-        _=Depends(get_user_from_token)
-):
+async def start_page(_=Depends(get_user_from_token)):
     """
     random protected hand
     :param _: uses to check that user logged

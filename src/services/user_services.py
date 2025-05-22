@@ -5,10 +5,11 @@ from src.database.models import User
 
 
 class UserService:
-
     @staticmethod
     async def create_user(email, role_id) -> User:
-        create_user_req = insert(User).values(email=email, role_id=role_id).returning(User)
+        create_user_req = (
+            insert(User).values(email=email, role_id=role_id).returning(User)
+        )
         async with async_session() as session, session.begin():
             created_user_chunked = await session.execute(create_user_req)
             return created_user_chunked.scalar()
