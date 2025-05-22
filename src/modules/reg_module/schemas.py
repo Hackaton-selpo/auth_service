@@ -17,3 +17,7 @@ class UserAuthInfo(BaseModel):
 
 class AccessTokenSchema(BaseModel):
     access_token: str
+
+
+class UserRequestsResponse(BaseModel):
+    reqs: int
