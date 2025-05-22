@@ -41,9 +41,9 @@ async def auth_user(email: Annotated[str, Form()]) -> schemas.SuccessMessageSend
 
 @router.get("/verify_code")
 async def verify_code(
-        response: Response,
-        user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
-        redis_client: Redis = Depends(get_redis),
+    response: Response,
+    user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
+    redis_client: Redis = Depends(get_redis),
 ):
     """
     second authorization handler, user has received the code, and will enter it to form with code
@@ -95,8 +95,8 @@ async def verify_guest() -> schemas.AccessTokenSchema:
 
 @router.get("/refresh_token")
 async def get_new_access_token(
-        response: Response,
-        user_id: int = Depends(get_user_id_from_refresh_token),
+    response: Response,
+    user_id: int = Depends(get_user_id_from_refresh_token),
 ):
     """
     using to update access token
@@ -114,7 +114,9 @@ async def get_new_access_token(
 
 
 @router.get("/user_tokens", tags=["User"])
-async def get_user_tokens(user=Depends(get_user_from_token)) -> schemas.UserRequestsResponse:
+async def get_user_tokens(
+    user=Depends(get_user_from_token),
+) -> schemas.UserRequestsResponse:
     return {"reqs": await UserService.get_user_reqs_count(user.id)}
 
 
