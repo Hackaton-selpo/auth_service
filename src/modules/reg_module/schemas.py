@@ -14,3 +14,6 @@ class User(BaseModel):
 class UserAuthInfo(BaseModel):
     code: int
     email: EmailStr
+
+class AccessTokenSchema(BaseModel):
+    access_token: str

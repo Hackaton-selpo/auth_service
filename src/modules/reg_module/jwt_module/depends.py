@@ -3,6 +3,8 @@ import logging
 
 import jwt
 from fastapi import Depends, HTTPException, status, Request
+
+from src.services.user_services import UserService
 from .. import schemas
 from ...shared import jwt_schemas
 from src.core.config import load_config
@@ -10,7 +12,7 @@ from src.core.config import load_config
 config = load_config()
 
 
-def _validate_access_token_payload(
+async def _validate_access_token_payload(
         payload: dict
 ) -> None:
     """
@@ -36,6 +38,14 @@ def _validate_access_token_payload(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
+    # check free requests for un-auth user
+    if payload["role"] == "guest":
+        user_reqs = await UserService.get_user_reqs_count(user_id=payload["sub"])
+        if user_reqs >= 20:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your free requests are over, you need to register a full account"
+            )
 
 
 def _get_refresh_token_from_cookies(
@@ -116,7 +126,7 @@ def _get_access_token_from_headers(
     )
 
 
-def get_user_from_token(
+async def get_user_from_token(
         token: str = Depends(_get_access_token_from_headers),
 ) -> schemas.User:
     """
@@ -133,7 +143,7 @@ def get_user_from_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    _validate_access_token_payload(payload)
+    await _validate_access_token_payload(payload)
     return schemas.User(
         id=payload["sub"],
         email=payload["email"],

@@ -12,9 +12,11 @@ config = load_config()
 
 def create_access_token(
         user: User,
+        role: str,
 ) -> str:
     """
     function creates access token using user payload
+    :param role:
     :param user: user schema, not orm model
     :return: signed jwt access token(with use payload)
     """
@@ -22,6 +24,7 @@ def create_access_token(
     jwt_payload = {
         "sub": str(user.id),
         "email": user.email,
+        "role": role,
         "exp": now + datetime.timedelta(
             minutes=config.jwt.access_token_expire_minutes
         ),

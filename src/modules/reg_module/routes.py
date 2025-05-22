@@ -76,11 +76,11 @@ async def verify_code(
         # delete code from redis
         await redis_client.delete(user_auth_info.email)
         # insert or get user from db
-        user_model = await UserService.create_user(user_auth_info.email)
+        user_model = await UserService.create_user(user_auth_info.email, role_id=1)
 
         # user auth success!
         # create jwt tokens
-        access_token: str = create_access_token(user=user_model)
+        access_token: str = create_access_token(user=user_model, role="user")
         refresh_token: str = create_refresh_token(user_model.id)
 
         # set jwt tokens in cookies
@@ -98,6 +98,22 @@ async def verify_code(
     )
 
 
+@router.get("/verify_guest")
+async def verify_guest() -> schemas.AccessTokenSchema:
+    user = await UserService.create_user(
+        email=None,
+        role_id=2
+    )
+    token = create_access_token(
+        user=user,
+        role="guest"
+    )
+
+    return {
+        "access_token": token
+    }
+
+
 @router.get("/refresh_token")
 async def get_new_access_token(
         response: Response,
@@ -112,7 +128,7 @@ async def get_new_access_token(
     # get user from database
     user_model = await UserService.get_user_by_id(user_id)
     # set jwt
-    access_token = create_access_token(user=user_model)
+    access_token = create_access_token(user=user_model, role="user")
     return {
         TokenType.access_token: access_token,
     }
