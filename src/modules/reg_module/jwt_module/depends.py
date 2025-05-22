@@ -12,7 +12,7 @@ from src.core.config import load_config
 config = load_config()
 
 
-async def _validate_access_token_payload(
+async def validate_access_token_payload(
         payload: dict
 ) -> None:
     """
@@ -143,7 +143,7 @@ async def get_user_from_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    await _validate_access_token_payload(payload)
+    await validate_access_token_payload(payload)
     return schemas.User(
         id=payload["sub"],
         email=payload["email"],

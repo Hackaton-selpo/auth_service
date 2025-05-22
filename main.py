@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from src.core.redis_initializer import init_redis
 from src.database import init_models
+from src.modules.grpc_token_validator.grpc_token_validator import run_grpc
 from src.routes import main_router
 
 
@@ -15,8 +16,13 @@ async def lifespan(app: FastAPI):
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
+    # starts grpc service
+    run_grpc()
+    # init redis
     await init_redis()
+    # init psql models
     await init_models()
+
     yield
 
 
