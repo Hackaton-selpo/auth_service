@@ -1,0 +1,16 @@
+[project]
+name = "hackaton-backend-auth-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "cryptography>=45.0.2",
+    "fastapi[standard]>=0.115.12",
+    "greenlet>=3.2.2",
+    "pyjwt>=2.10.1",
+    "python-dotenv>=1.1.0",
+    "redis>=6.1.0",
+    "sqlalchemy>=2.0.41",
+]
