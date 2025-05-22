@@ -10,6 +10,7 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_DB = 0
 
+
 def init_redis():
     global _redis_client
     _redis_client = redis.Redis.from_url(

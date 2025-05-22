@@ -1,10 +1,9 @@
-import asyncio
+import logging
 import random
-import bcrypt
-
 import smtplib
 from email.mime.text import MIMEText
-import logging
+
+import bcrypt
 
 from src.core.celery_config import celery
 from src.core.config import load_config
@@ -15,11 +14,13 @@ config = load_config()
 
 
 def get_password_hash(password: str) -> str:
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password_to_check: str, password_hash: str) -> bool:
-    return bcrypt.checkpw(password_to_check.encode('utf-8'), password_hash.encode('utf-8'))
+    return bcrypt.checkpw(
+        password_to_check.encode("utf-8"), password_hash.encode("utf-8")
+    )
 
 
 def create_verification_code() -> int:
@@ -32,7 +33,7 @@ def create_verification_code() -> int:
 
 @celery.task
 def send_verification_code(
-        email: str,
+    email: str,
 ) -> int:
     """
     creating code, save it to redis, call smtp sender function
@@ -46,12 +47,9 @@ def send_verification_code(
         redis.setex(
             name=email,
             time=config.verification_code_time_expiration,
-            value=code_to_user
+            value=code_to_user,
         )
-        send_verification_code_by_smtp(
-            email=email,
-            auth_code=code_to_user
-        )
+        send_verification_code_by_smtp(email=email, auth_code=code_to_user)
         logger.info(f"Successfully sent verification code {code_to_user} to {email}")
         return code_to_user
     except Exception:
@@ -74,10 +72,7 @@ def send_verification_code_by_smtp(email: str, auth_code: int) -> None:
     logger.info("Я начал отправку по email!")
     # Отправляем email
     try:
-        with smtplib.SMTP(
-                config.smtp.SMTP_SERVER,
-                config.smtp.SMTP_PORT
-        ) as server:
+        with smtplib.SMTP(config.smtp.SMTP_SERVER, config.smtp.SMTP_PORT) as server:
             server.starttls()
             server.login(config.smtp.SMTP_USER, config.smtp.SMTP_PASSWORD)
             server.sendmail(config.smtp.SMTP_USER, email, msg.as_string())

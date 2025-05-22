@@ -6,24 +6,23 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Response, status
 from redis import Redis
 
 from src.core.redis_initializer import get_redis
+
+from ...core.config import load_config
+from ...services.user_services import UserService
+from ..shared import jwt_schemas
+from ..shared.jwt_schemas import TokenType
+from ..smtp_celery_sender.send_code_to_user import send_verification_code
 from . import schemas
 from .depends import validate_code
 from .jwt_module.creator import create_access_token, create_refresh_token
 from .jwt_module.depends import get_user_from_token, get_user_id_from_refresh_token
-from ..shared import jwt_schemas
-from ..shared.jwt_schemas import TokenType
-from ..smtp_celery_sender.send_code_to_user import send_verification_code
-from ...core.config import load_config
-from ...services.user_services import UserService
 
 router: APIRouter = APIRouter(prefix="/auth", tags=["auth"])
 config = load_config()
 
 
 @router.post("/auth")
-async def auth_user(
-        email: Annotated[str, Form()]
-) -> schemas.SuccessMessageSend:
+async def auth_user(email: Annotated[str, Form()]) -> schemas.SuccessMessageSend:
     """
     first authorization router, user enter phone number and will receive 6-digits code
     :param email: validated phone number
@@ -42,9 +41,9 @@ async def auth_user(
 
 @router.get("/verify_code")
 async def verify_code(
-        response: Response,
-        user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
-        redis_client: Redis = Depends(get_redis),
+    response: Response,
+    user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
+    redis_client: Redis = Depends(get_redis),
 ):
     """
     second authorization handler, user has received the code, and will enter it to form with code
@@ -96,8 +95,8 @@ async def verify_guest() -> schemas.AccessTokenSchema:
 
 @router.get("/refresh_token")
 async def get_new_access_token(
-        response: Response,
-        user_id: int = Depends(get_user_id_from_refresh_token),
+    response: Response,
+    user_id: int = Depends(get_user_id_from_refresh_token),
 ):
     """
     using to update access token

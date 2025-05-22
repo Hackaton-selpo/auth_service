@@ -29,7 +29,6 @@ class DBConfig(BaseModel):
 
 
 class SMTPConfig(BaseSettings):
-
     SMTP_SERVER: str
     SMTP_PORT: int
     SMTP_USER: str
@@ -69,7 +68,7 @@ def load_config() -> Config:
             refresh_token_expire_days=10,
             token_type_field="token_type",
         ),
-        smtp=SMTPConfig()
+        smtp=SMTPConfig(),
     )
 
 
@@ -82,7 +81,8 @@ def __load_db_config() -> DBConfig:
         database_name=os.getenv("DATABASE_NAME"),
     )
 
+
 try:
     db_config: DBConfig = __load_db_config()
-except Exception as e:
+except Exception:
     pass
