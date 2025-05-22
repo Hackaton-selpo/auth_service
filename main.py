@@ -19,10 +19,9 @@ async def lifespan(app: FastAPI):
     # starts grpc service
     run_grpc()
     # init redis
-    await init_redis()
+    init_redis()
     # init psql models
     await init_models()
-
     yield
 
 

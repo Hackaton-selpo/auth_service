@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from pydantic import BaseModel, field_validator
+from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,10 +28,19 @@ class DBConfig(BaseModel):
     database_name: str
 
 
+class SMTPConfig(BaseSettings):
+
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASSWORD: str
+
+
 class Config(BaseModel):
     verification_code_time_expiration: int
     project_host: str
     jwt: AuthJWT
+    smtp: SMTPConfig
 
     @field_validator("project_host")
     def validate_host(cls, value):
@@ -59,6 +69,7 @@ def load_config() -> Config:
             refresh_token_expire_days=10,
             token_type_field="token_type",
         ),
+        smtp=SMTPConfig()
     )
 
 
@@ -71,5 +82,7 @@ def __load_db_config() -> DBConfig:
         database_name=os.getenv("DATABASE_NAME"),
     )
 
-
-db_config: DBConfig = __load_db_config()
+try:
+    db_config: DBConfig = __load_db_config()
+except Exception as e:
+    pass
