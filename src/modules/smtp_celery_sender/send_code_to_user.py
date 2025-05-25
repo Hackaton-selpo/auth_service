@@ -28,7 +28,7 @@ def create_verification_code() -> int:
     simple verification code creator
     :return:
     """
-    return random.randint(100_000, 999_999)
+    return str(random.randint(100_000, 999_999))
 
 
 @celery.task
