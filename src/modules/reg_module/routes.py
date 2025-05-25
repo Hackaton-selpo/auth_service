@@ -13,22 +13,22 @@ from ..shared import jwt_schemas
 from ..shared.jwt_schemas import TokenType
 from ..smtp_celery_sender.send_code_to_user import send_verification_code
 from . import schemas
-from .depends import validate_code
+
 from .jwt_module.creator import create_access_token, create_refresh_token
 from .jwt_module.depends import get_user_from_token, get_user_id_from_refresh_token
 
 router: APIRouter = APIRouter(prefix="/auth", tags=["auth"])
 config = load_config()
 
-
 @router.post("/auth")
-async def auth_user(email: Annotated[str, Form()]) -> schemas.SuccessMessageSend:
+async def auth_user(email: schemas.EmailForm) -> schemas.SuccessMessageSend:
     """
     first authorization router, user enter phone number and will receive 6-digits code
     :param email: validated phone number
     :return: success message
     :raise HTTPException with 500(some gone wrong)
     """
+    email=email.email
     try:
         send_verification_code.delay(email)
         return schemas.SuccessMessageSend(
@@ -39,10 +39,10 @@ async def auth_user(email: Annotated[str, Form()]) -> schemas.SuccessMessageSend
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
-@router.get("/verify_code")
+@router.post("/verify_code")
 async def verify_code(
     response: Response,
-    user_auth_info: schemas.UserAuthInfo = Depends(validate_code),
+    user_auth_info: schemas.UserAuthInfo,
     redis_client: Redis = Depends(get_redis),
 ):
     """
@@ -77,7 +77,7 @@ async def verify_code(
         response.set_cookie(
             key=jwt_schemas.TokenType.refresh_token.value,
             value=refresh_token,
-            httponly=True,
+            httponly=False, # MAKE TRUE ON PRODUCTION
             secure=False,  # MAKE TRUE ON PRODUCTION
         )
         return {TokenType.access_token: access_token}
