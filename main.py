@@ -28,13 +28,19 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     root_path_in_servers=True,
-    root_path='/auth',
-    #openapi_url='/auth/auth/openapi.json',
-    )
+    root_path="/auth",
+    # openapi_url='/auth/auth/openapi.json',
+)
 app.include_router(main_router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://57.129.62.4", "http://localhost", "http:localhost:5173", "http://57.129.62.4:0", "http://localhost:3000"],
+    allow_origins=[
+        "http://57.129.62.4",
+        "http://localhost",
+        "http:localhost:5173",
+        "http://57.129.62.4:0",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
 )

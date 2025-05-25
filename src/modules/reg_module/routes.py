@@ -1,8 +1,7 @@
 import hmac
 import logging
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from redis import Redis
 
 from src.core.redis_initializer import get_redis
@@ -13,12 +12,12 @@ from ..shared import jwt_schemas
 from ..shared.jwt_schemas import TokenType
 from ..smtp_celery_sender.send_code_to_user import send_verification_code
 from . import schemas
-
 from .jwt_module.creator import create_access_token, create_refresh_token
 from .jwt_module.depends import get_user_from_token, get_user_id_from_refresh_token
 
 router: APIRouter = APIRouter(prefix="/auth", tags=["auth"])
 config = load_config()
+
 
 @router.post("/auth")
 async def auth_user(email: schemas.EmailForm) -> schemas.SuccessMessageSend:
@@ -28,7 +27,7 @@ async def auth_user(email: schemas.EmailForm) -> schemas.SuccessMessageSend:
     :return: success message
     :raise HTTPException with 500(some gone wrong)
     """
-    email=email.email
+    email = email.email
     try:
         send_verification_code.delay(email)
         return schemas.SuccessMessageSend(
@@ -77,7 +76,7 @@ async def verify_code(
         response.set_cookie(
             key=jwt_schemas.TokenType.refresh_token.value,
             value=refresh_token,
-            httponly=False, # MAKE TRUE ON PRODUCTION
+            httponly=False,  # MAKE TRUE ON PRODUCTION
             secure=False,  # MAKE TRUE ON PRODUCTION
         )
         return {TokenType.access_token: access_token}
