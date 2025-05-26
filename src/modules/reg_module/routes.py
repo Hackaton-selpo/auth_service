@@ -141,3 +141,13 @@ async def start_page(_=Depends(get_user_from_token)):
     :return:
     """
     return {"status": "success"}
+
+
+@router.get(
+    "/profile",
+    response_model=schemas.User,
+)
+async def get_user_profile(
+    user=Depends(get_user_from_token),
+):
+    return user

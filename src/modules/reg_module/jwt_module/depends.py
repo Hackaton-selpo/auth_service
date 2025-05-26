@@ -145,4 +145,5 @@ async def get_user_from_token(
     return schemas.User(
         id=payload["sub"],
         email=payload["email"],
+        role=payload.get("role", "guest"),
     )

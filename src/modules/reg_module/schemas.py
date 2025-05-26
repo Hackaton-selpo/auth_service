@@ -12,6 +12,7 @@ class SuccessMessageSend(BaseModel):
 class User(BaseModel):
     id: int
     email: EmailStr
+    role: str
 
 
 class UserAuthInfo(BaseModel):
