@@ -39,7 +39,7 @@ async def validate_access_token_payload(payload: dict) -> None:
         )
     # check free requests for un-auth user
     if payload["role"] == "guest":
-        user_reqs = await UserService.get_user_reqs_count(user_id=payload["sub"])
+        user_reqs = await UserService.get_user_reqs_count(user_id=int(payload["sub"]))
         if user_reqs >= 20:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

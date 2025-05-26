@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -11,7 +13,7 @@ class SuccessMessageSend(BaseModel):
 
 class User(BaseModel):
     id: int
-    email: EmailStr
+    email: Optional[EmailStr] = None
     role: str
 
 

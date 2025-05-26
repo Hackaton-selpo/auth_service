@@ -127,7 +127,6 @@ async def logout(response: Response, _=Depends(get_user_from_token)):
     :param _: uses to check that user logged
     :return: None (delete both tokens cookies)
     """
-
     response.delete_cookie(
         key=jwt_schemas.TokenType.refresh_token.value,
     )
